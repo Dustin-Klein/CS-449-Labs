@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Umpire Buddy</string>
+    <string name="balls_button_text">Ball</string>
+    <string name="strikes_button_text">Strike</string>
+    <string name="balls_label_text">Balls: %1$d </string>
+    <string name="strikes_label_text">Strikes: %1$d </string>
+</resources>
