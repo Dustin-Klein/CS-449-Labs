@@ -4,4 +4,8 @@
     <string name="strikes_button_text">Strike</string>
     <string name="balls_label_text">Balls: %1$d </string>
     <string name="strikes_label_text">Strikes: %1$d </string>
+    <string name="title_activity_about">AboutActivity</string>
+    <string name="about_text_label">Umpire Buddy by Dustin Klein</string>
+    <string name="about">About</string>
+    <string name="reset_count">Reset Count</string>
 </resources>

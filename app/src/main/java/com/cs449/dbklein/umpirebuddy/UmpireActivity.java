@@ -2,8 +2,12 @@ package com.cs449.dbklein.umpirebuddy;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -40,6 +44,7 @@ public class UmpireActivity extends AppCompatActivity {
                                 dialog.cancel();
                             }
                         });
+
         final AlertDialog.Builder strikeOutAlert = new AlertDialog.Builder(UmpireActivity.this)
                 .setMessage("You're Out!")
                 .setCancelable(true)
@@ -93,8 +98,38 @@ public class UmpireActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.activity_umpire, menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.reset_button:
+                updateCountText(0, 0);
+                return true;
+            case R.id.about_button:
+                gotoAboutActivity();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
     private void updateCountText(int balls, int strikes) {
         ballsText.setText(getString(R.string.balls_label_text, balls));
         strikesText.setText(getString(R.string.strikes_label_text, strikes));
+
+        this.balls = balls;
+        this.strikes = strikes;
+    }
+
+    private void gotoAboutActivity() {
+        Intent intent = new Intent(this, AboutActivity.class);
+        startActivity(intent);
     }
 }
