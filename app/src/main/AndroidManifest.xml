@@ -9,16 +9,18 @@
         android:roundIcon="@mipmap/baseball"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <!-- Umpire Activity -->
         <activity android:name=".UmpireActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- About Activity -->
         <activity
             android:name=".AboutActivity"
-            android:label="@string/title_activity_about"></activity>
+            android:label="@string/about" />
     </application>
-
 </manifest>

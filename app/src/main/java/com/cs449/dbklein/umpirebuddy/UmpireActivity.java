@@ -1,6 +1,7 @@
 package com.cs449.dbklein.umpirebuddy;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,13 +13,22 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 public class UmpireActivity extends AppCompatActivity {
 
     private int balls;
     private int strikes;
+    private final String filename = "outs";
 
     private TextView ballsText;
     private TextView strikesText;
+    private int outs;
+    private TextView outsText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,12 +37,33 @@ public class UmpireActivity extends AppCompatActivity {
 
         balls = 0;
         strikes = 0;
+        outs = 0;
 
         ballsText = findViewById(R.id.balls_text);
         strikesText = findViewById(R.id.strikes_text);
+        outsText = findViewById(R.id.outs_text);
 
         Button ballsButton = findViewById(R.id.balls_button);
         Button strikesButton = findViewById(R.id.strikes_button);
+
+        try {
+            FileInputStream inputStream = openFileInput(filename);
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            StringBuilder sb = new StringBuilder();
+
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                sb.append(line);
+            }
+
+            System.out.println("Reading in '" + sb.toString() + "'");
+            outs = Integer.parseInt(sb.toString());
+            updateOuts(outs);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         final AlertDialog.Builder walkAlert = new AlertDialog.Builder(UmpireActivity.this)
                 .setMessage("Take your base.")
@@ -90,6 +121,9 @@ public class UmpireActivity extends AppCompatActivity {
                     strikes = 0;
 
                     strikeOutAlert.show();
+
+                    ++outs;
+                    updateOuts(outs);
                 }
 
                 // Display the changes
@@ -119,7 +153,6 @@ public class UmpireActivity extends AppCompatActivity {
         }
     }
 
-
     private void updateCountText(int balls, int strikes) {
         ballsText.setText(getString(R.string.balls_label_text, balls));
         strikesText.setText(getString(R.string.strikes_label_text, strikes));
@@ -129,7 +162,21 @@ public class UmpireActivity extends AppCompatActivity {
     }
 
     private void gotoAboutActivity() {
-        Intent intent = new Intent(this, AboutActivity.class);
-        startActivity(intent);
+        startActivity(new Intent(UmpireActivity.this, AboutActivity.class));
+    }
+
+    private void updateOuts(int outs) {
+        outsText.setText(getString(R.string.outs_label_text, outs));
+
+        this.outs = outs;
+
+        try {
+            FileOutputStream outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+            System.out.println("Writing '" + outs + "'");
+            outputStream.write(Integer.toString(outs).getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
