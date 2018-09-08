@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/balls_button_menu"
+        android:title="@string/balls_button_text" />
+
+    <item
+        android:id="@+id/strikes_button_menu"
+        android:title="@string/strikes_button_text" />
+</menu>

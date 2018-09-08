@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -30,107 +31,41 @@ public class UmpireActivity extends AppCompatActivity {
     private int outs;
     private TextView outsText;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_umpire);
+    private AlertDialog.Builder walkAlert;
+    private AlertDialog.Builder strikeOutAlert;
 
-        balls = 0;
-        strikes = 0;
-        outs = 0;
-
-        ballsText = findViewById(R.id.balls_text);
-        strikesText = findViewById(R.id.strikes_text);
-        outsText = findViewById(R.id.outs_text);
-
-        Button ballsButton = findViewById(R.id.balls_button);
-        Button strikesButton = findViewById(R.id.strikes_button);
-
-        try {
-            FileInputStream inputStream = openFileInput(filename);
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            StringBuilder sb = new StringBuilder();
-
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                sb.append(line);
-            }
-
-            System.out.println("Reading in '" + sb.toString() + "'");
-            outs = Integer.parseInt(sb.toString());
-            updateOuts(outs);
-
-        } catch (IOException e) {
-            e.printStackTrace();
+    private ActionMode mActionMode;
+    private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mode.getMenuInflater().inflate(R.menu.activity_umpire_count, menu);
+            return true;
         }
 
-        final AlertDialog.Builder walkAlert = new AlertDialog.Builder(UmpireActivity.this)
-                .setMessage("Take your base.")
-                .setCancelable(true)
-                .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        });
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
 
-        final AlertDialog.Builder strikeOutAlert = new AlertDialog.Builder(UmpireActivity.this)
-                .setMessage("You're Out!")
-                .setCancelable(true)
-                .setPositiveButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        });
-
-        updateCountText(balls, strikes);
-
-
-        ballsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Every click increment the ball counter
-                ++balls;
-
-                // If it is the fourth ball, reset the count and show an alert
-                if (balls == 4) {
-                    balls = 0;
-                    strikes = 0;
-
-                    walkAlert.show();
-                }
-
-                // Display the changes
-                updateCountText(balls, strikes);
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.balls_button_menu:
+                    addBall();
+                    return true;
+                case R.id.strikes_button_menu:
+                    addStrike();
+                    return true;
+                default:
+                    return false;
             }
-        });
+        }
 
-        strikesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Every click increment the strike counter
-                ++strikes;
-
-                // If it is the third strike, reset the count and show an alert
-                if (strikes == 3) {
-                    balls = 0;
-                    strikes = 0;
-
-                    strikeOutAlert.show();
-
-                    ++outs;
-                    updateOuts(outs);
-                }
-
-                // Display the changes
-                updateCountText(balls, strikes);
-            }
-        });
-    }
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            mActionMode = null;
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -178,5 +113,129 @@ public class UmpireActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_umpire);
+
+        balls = 0;
+        strikes = 0;
+        outs = 0;
+
+        ballsText = findViewById(R.id.balls_text);
+        strikesText = findViewById(R.id.strikes_text);
+        outsText = findViewById(R.id.outs_text);
+
+        Button ballsButton = findViewById(R.id.balls_button);
+        Button strikesButton = findViewById(R.id.strikes_button);
+
+        updateCountText(balls, strikes);
+
+
+        try {
+            FileInputStream inputStream = openFileInput(filename);
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            StringBuilder sb = new StringBuilder();
+
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                sb.append(line);
+            }
+
+            System.out.println("Reading in '" + sb.toString() + "'");
+            outs = Integer.parseInt(sb.toString());
+            updateOuts(outs);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        walkAlert = new AlertDialog.Builder(UmpireActivity.this)
+                .setMessage("Take your base.")
+                .setCancelable(true)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+
+        strikeOutAlert = new AlertDialog.Builder(UmpireActivity.this)
+                .setMessage("You're Out!")
+                .setCancelable(true)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+
+        ballsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addBall();
+            }
+        });
+
+        strikesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addStrike();
+            }
+        });
+
+        View umpireView = findViewById(R.id.background);
+
+        umpireView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (mActionMode != null) {
+                    return false;
+                }
+
+                mActionMode = startSupportActionMode(mActionModeCallback);
+                return true;
+            }
+        });
+    }
+
+    private void addBall() {
+        // Every click increment the ball counter
+        ++balls;
+
+        // If it is the fourth ball, reset the count and show an alert
+        if (balls == 4) {
+            balls = 0;
+            strikes = 0;
+
+            walkAlert.show();
+        }
+
+        // Display the changes
+        updateCountText(balls, strikes);
+    }
+
+    private void addStrike() {
+        // Every click increment the strike counter
+        ++strikes;
+
+        // If it is the third strike, reset the count and show an alert
+        if (strikes == 3) {
+            balls = 0;
+            strikes = 0;
+
+            strikeOutAlert.show();
+
+            ++outs;
+            updateOuts(outs);
+        }
+
+        // Display the changes
+        updateCountText(balls, strikes);
     }
 }
